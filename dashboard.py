@@ -21,7 +21,7 @@ KEYWORDS = [
     "Portland, OR",
     "country:Italy",
 ]
-REFRESH_HOURS = 12  # Refresh the data twice a day
+REFRESH_HOURS = 4  # Refresh the data twice a day
 
 # Setup the window
 NUM_COLS = 3
@@ -105,7 +105,7 @@ def main():
         for keyword in KEYWORDS:
             analyze_keyword(keyword, df, recent_idx)
 
-        fig.subplots_adjust(wspace=0.1, hspace=0.5)
+        fig.subplots_adjust(wspace=0.25, hspace=0.7)
         fig.canvas.draw()
         fig.canvas.flush_events()
 
