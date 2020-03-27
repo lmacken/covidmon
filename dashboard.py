@@ -41,7 +41,7 @@ def get_data():
     return df
 
 
-def analyze_keyword(keyword, df, recent_idx):
+def analyze_keyword(keyword, df):
     ax = AXMAP[KEYWORDS.index(keyword)]
     ax.clear()
     if keyword.startswith("country:"):
@@ -57,7 +57,7 @@ def analyze_keyword(keyword, df, recent_idx):
             kw_df = df[df.Province.str.contains(keyword)]
 
     print(f"Found {len(kw_df)} entries for {keyword}")
-    recent_data = kw_df[recent_idx:]
+    recent_data = kw_df.tail(3)
     print(recent_data.to_string())
 
     kw_df.groupby("Status").Cases.plot(legend=True, title=f"{keyword}", ax=ax)
@@ -96,14 +96,10 @@ def main():
     plt.show(block=False)
 
     while True:
-        recent_idx = pd.Timestamp(
-            datetime.utcnow().date() - timedelta(days=2), tz="utc"
-        )
-
         df = get_data()
 
         for keyword in KEYWORDS:
-            analyze_keyword(keyword, df, recent_idx)
+            analyze_keyword(keyword, df)
 
         fig.subplots_adjust(wspace=0.25, hspace=0.7)
         fig.canvas.draw()
