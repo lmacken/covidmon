@@ -2,7 +2,9 @@
 
 A simple tool to monitor COVID-19 case status across many locations.
 
-It auto-refreshes twice a day, and uses https://covid19api.com for data.
+This is a stand-alone application that allows you to create a personalized
+dashboard of locations that you want to monitor. It will automatically refresh
+twice a day, and uses https://covid19api.com for data.
 
 ![screenshot](https://github.com/lmacken/covidmon/raw/master/screenshot.png "COVID-19 Monitor1")
 
