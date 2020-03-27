@@ -5,10 +5,8 @@ Copyright (C) 2020  Luke Macken <luke.macken@gmail.com>
 SPDX-License-Identifier: AGPL-3.0-or-later
 """
 import math
-import time
 import pandas as pd
 import matplotlib.pyplot as plt
-from datetime import datetime, timedelta
 
 KEYWORDS = [
     "Denver",
