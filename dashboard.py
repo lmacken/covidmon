@@ -1,6 +1,7 @@
 """
 Monitor the COVID-19 status across many locations in a single dashboard.
 
+Copyright (C) 2020  Luke Macken <luke.macken@gmail.com>
 SPDX-License-Identifier: AGPL-3.0-or-later
 """
 import math
