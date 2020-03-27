@@ -20,7 +20,7 @@ KEYWORDS = [
     "Portland, OR",
     "country:Italy",
 ]
-REFRESH_HOURS = 24  # Refresh the data once a day
+REFRESH_HOURS = 12  # Refresh the data twice a day
 
 # Setup the window
 NUM_COLS = 3
