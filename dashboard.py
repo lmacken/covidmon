@@ -25,20 +25,14 @@ REFRESH_HOURS = 24  # Refresh the data once a day
 # Setup the window
 NUM_COLS = 3
 NUM_ROWS = math.ceil(len(KEYWORDS) / NUM_COLS)
-fig, axes = plt.subplots(NUM_ROWS, NUM_COLS, sharex=False, sharey=False)
 
 # Map each axis to a number
 # Then the index of the keyword in KEYWORDS is the axis key
 AXMAP = {}
 
-i = 0
-for row in axes:
-    for col in row:
-        AXMAP[i] = col
-        i += 1
-
 
 def get_data():
+    print("Downloading all COVID-19 data from covid19api.com")
     df = pd.read_json("https://api.covid19api.com/all")
     df = df.query("Country != ''")  # Clean it
     df.Date = pd.to_datetime(df.Date)
@@ -63,8 +57,7 @@ def analyze_keyword(keyword, df, recent_idx):
 
     print(f"Found {len(kw_df)} entries for {keyword}")
     recent_data = kw_df[recent_idx:]
-    if len(recent_data):
-        print(recent_data.to_string())
+    print(recent_data.to_string())
 
     kw_df.groupby("Status").Cases.plot(legend=True, title=f"{keyword}", ax=ax)
 
@@ -90,10 +83,20 @@ def analyze_keyword(keyword, df, recent_idx):
 
 
 def main():
+    fig, axes = plt.subplots(NUM_ROWS, NUM_COLS, sharex=False, sharey=False)
+
+    # Give each axis a number
+    i = 0
+    for row in axes:
+        for col in row:
+            AXMAP[i] = col
+            i += 1
+
     plt.show(block=False)
+
     while True:
         recent_idx = pd.Timestamp(
-            datetime.utcnow().date() - timedelta(days=1), tz="utc"
+            datetime.utcnow().date() - timedelta(days=2), tz="utc"
         )
 
         df = get_data()
