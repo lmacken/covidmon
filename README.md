@@ -2,8 +2,9 @@
 
 A simple tool to monitor COVID-19 case status across many locations.
 
-![screenshot](https://github.com/lmacken/covidmon/raw/master/screenshot.png "COVID-19 Monitor1")
+It auto-refreshes twice a day, and uses https://covid19api.com for data.
 
+![screenshot](https://github.com/lmacken/covidmon/raw/master/screenshot.png "COVID-19 Monitor1")
 
     Found 24 entries for Denver
                               Country          Province      Lat      Lon  Cases     Status
