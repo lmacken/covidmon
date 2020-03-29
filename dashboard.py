@@ -10,6 +10,9 @@ import matplotlib.pyplot as plt
 
 KEYWORDS = [
     "Denver",
+    "exact:Colorado",
+    #"exact:Boston, MA",
+    #"Fort Collins, CO",
     "Massachusetts, Hampden",
     "Los Angeles",
     "country:Vietnam",
@@ -18,8 +21,11 @@ KEYWORDS = [
     "New York City",
     "Portland, OR",
     "country:Italy",
+    "country:South Korea",
+    "Boston, MA",
+    #"country:Mainland China",
 ]
-REFRESH_HOURS = 12  # Refresh the data twice a day
+REFRESH_HOURS = 4  # Refresh the data twice a day
 
 # Setup the window
 NUM_COLS = 3
@@ -58,7 +64,7 @@ def analyze_keyword(keyword, df):
     recent_data = kw_df.tail(3)
     print(recent_data.to_string())
 
-    kw_df.groupby("Status").Cases.plot(legend=True, title=f"{keyword}", ax=ax)
+    kw_df.groupby("Status").Cases.plot(legend=True, title=keyword, ax=ax)
 
     def annotate_status(kw_df, status, color, xytext, shrink=0.05):
         latest = kw_df[kw_df.Status == status].tail(1)
