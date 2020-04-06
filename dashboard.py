@@ -78,8 +78,7 @@ def analyze_keyword(keyword, df):
         else:
             _df = qdf[qdf.Province.str.contains(kw)]
         kw_df = _df
-
-        title += f"{kw} "
+        title = f"{kw} {title}"
     kw_df = kw_df.sort_index()
 
     print(f"Found {len(kw_df)} entries for {keyword}")
