@@ -9,23 +9,19 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 KEYWORDS = [
-    "Denver",
-    "exact:Colorado",
-    #"exact:Boston, MA",
-    #"Fort Collins, CO",
-    "Massachusetts, Hampden",
-    "Los Angeles",
-    "country:Vietnam",
-    "exact:Florida",
-    "Washington, D.C.",
-    "New York City",
-    "Portland, OR",
-    "country:Italy",
-    "country:South Korea",
-    "Boston, MA",
-    #"country:Mainland China",
+    ("province:Colorado", "city:Denver"),
+    ("province:Massachusetts", "city:Hampden"),
+    ("province:Massachusetts", "city:Suffolk"),
+    ("province:California", "city:Los Angeles"),
+    ("province:New York", "city:Wayne"),
+    ("province:New York", "city:New York"),
+    ("province:Virginia", "city:Arlington"),
+    ("province:Florida", "city:Orange"),
+    "country:Viet Nam",
+    "country:Korea (South)",
+    "country:Japan",
 ]
-REFRESH_HOURS = 4  # Refresh the data twice a day
+REFRESH_HOURS = 12  # Refresh the data twice a day
 
 # Setup the window
 NUM_COLS = 3
@@ -37,41 +33,69 @@ AXMAP = {}
 
 
 def get_data():
+    """
+    Country 	CountryCode 	Lat 	Lon 	Confirmed 	Deaths 	Recovered 	Active 	Date 	LocationID 	Province 	City 	CityCode
+    Date
+    2020-04-04 00:00:00+00:00 	Colombia 	CO 	4.57 	-74.30 	1406 	32 	85 	0 	2020-04-04 00:00:00+00:00 	89e1ca12-78be-407f-aa18-bfcd05f01a56 	NaN 	NaN 	NaN
+    """
     print("Downloading all COVID-19 data from covid19api.com")
     df = pd.read_json("https://api.covid19api.com/all")
     df = df.query("Country != ''")  # Clean it
     df.Date = pd.to_datetime(df.Date)
-    df = df.set_index("Date").sort_index()
+    df = df.set_index("Date").sort_index().fillna(0)
     return df
 
 
 def analyze_keyword(keyword, df):
     ax = AXMAP[KEYWORDS.index(keyword)]
     ax.clear()
-    if keyword.startswith("country:"):
-        kw = keyword.split(":")[1]
-        kw_df = df[df.Country == kw]
-        keyword = kw
+
+    if isinstance(keyword, tuple):
+        keywords = list(keyword)
     else:
-        if keyword.startswith("exact:"):
-            kw = keyword.split(":")[1]
-            keyword = kw
-            kw_df = df[df.Province == keyword]
+        keywords = [keyword]
+
+    kw_df = None
+    title = ''
+
+    while len(keywords):
+        kw = keywords.pop(0)
+        qdf = df
+        if kw_df is not None:
+            qdf = kw_df
+        if kw.startswith("country:"):
+            kw = kw.split(":")[1]
+            _df = qdf[qdf.Country == kw]
+        elif kw.startswith("province:"):
+            kw = kw.split(":")[1]
+            _df = qdf[qdf.Province == kw]
+        elif kw.startswith("city:"):
+            kw = kw.split(":")[1]
+            _df = qdf[qdf.City == kw]
+        elif kw.startswith("citycode:"):
+            kw = kw.split(":")[1]
+            _df = qdf[qdf.CityCode == kw]
         else:
-            kw_df = df[df.Province.str.contains(keyword)]
+            _df = qdf[qdf.Province.str.contains(kw)]
+        kw_df = _df
+
+        title += f"{kw} "
+    kw_df = kw_df.sort_index()
 
     print(f"Found {len(kw_df)} entries for {keyword}")
-    recent_data = kw_df.tail(3)
+    recent_data = kw_df.tail(6)
     print(recent_data.to_string())
 
-    kw_df.groupby("Status").Cases.plot(legend=True, title=keyword, ax=ax)
+    kw_df.Confirmed.plot(label='confirmed', legend=True, title=title, ax=ax)
+    kw_df.Deaths.plot(label='deaths', legend=True, title=title, ax=ax)
+    kw_df.Recovered.plot(label='recovered', legend=True, title=title, ax=ax)
 
-    def annotate_status(kw_df, status, color, xytext, shrink=0.05):
-        latest = kw_df[kw_df.Status == status].tail(1)
+    def annotate_status(df, status, color, xytext, shrink=0.05):
+        latest = df.tail(1)
         x = latest.index.tolist()[0]
-        y = latest.Cases.tolist()[0]
+        y = latest[status].tolist()[0]
         ax.annotate(
-            f"{latest.Cases.values[0]}",
+            f"{latest[status].values[0]}",
             xy=(x, y),
             xycoords="data",
             xytext=xytext,
@@ -81,9 +105,9 @@ def analyze_keyword(keyword, df):
             verticalalignment="top",
         )
 
-    annotate_status(kw_df, "confirmed", "black", xytext=(0.8, 0.95))
-    annotate_status(kw_df, "deaths", "red", xytext=(0.7, 0.7))
-    annotate_status(kw_df, "recovered", "green", xytext=(0.6, 0.4), shrink=0.1)
+    annotate_status(kw_df, "Confirmed", "black", xytext=(0.8, 0.95))
+    annotate_status(kw_df, "Deaths", "red", xytext=(0.7, 0.7))
+    annotate_status(kw_df, "Recovered", "green", xytext=(0.6, 0.4), shrink=0.1)
     print()
 
 
@@ -93,8 +117,12 @@ def main():
     # Give each axis a number
     i = 0
     for row in axes:
-        for col in row:
-            AXMAP[i] = col
+        try:
+            for col in row:
+                AXMAP[i] = col
+                i += 1
+        except TypeError:  # AxesSubplot is not iterable; single entry
+            AXMAP[i] = row
             i += 1
 
     plt.show(block=False)
