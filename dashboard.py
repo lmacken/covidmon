@@ -114,15 +114,8 @@ def main():
     fig, axes = plt.subplots(NUM_ROWS, NUM_COLS, sharex=False, sharey=False)
 
     # Give each axis a number
-    i = 0
-    for row in axes:
-        try:
-            for col in row:
-                AXMAP[i] = col
-                i += 1
-        except TypeError:  # AxesSubplot is not iterable; single entry
-            AXMAP[i] = row
-            i += 1
+    for i, ax in enumerate(axes.flatten()):
+        AXMAP[i] = ax
 
     plt.show(block=False)
 
